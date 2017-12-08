@@ -1,0 +1,24 @@
+{
+    "name": "patinthehat/glacier",
+    "version": "0.1",
+    "description": "Lightweight console application framework for PHP",
+    "type": "library",
+    "license": "MIT",
+    "authors": [
+        {
+            "name": "trick",
+            "email": "trick.developer@gmail.com"
+        }
+    ],
+    "require": {
+        "php":">=7.1.0"
+    },
+    "autoload": {
+        "psr-4": {
+            "Glacier\\": "src/"
+        },
+        "files":[
+            "src/helpers.php"
+        ]
+    }    
+}
