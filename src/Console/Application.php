@@ -5,10 +5,12 @@ namespace Glacier\Console;
 use Glacier\Console\Arguments;
 use Glacier\Console\Output;
 use Glacier\Console\ApplicationSettings;
+use Glacier\Filesystem\JsonConfigurationFile;
 
 class Application
 {
     public $commandSupport = true;
+    public $configFileSupport = true;
     
     protected $arguments;
     protected $settings;
@@ -16,9 +18,11 @@ class Application
     protected $output;
     protected $commands;
     protected $defaultCommandIndex = -1;
+    protected $configFile;
 
     protected function init(array $args, $parseArguments)
     {
+        $this->configFile = false;
         $this->commands = [];
         $this->output = new Output;
         $this->name = (isset($args[0]) ? basename($args[0], '.php') : 'app');
@@ -27,6 +31,7 @@ class Application
             $this->arguments->parse();
 
         $this->initSettings();
+        $this->loadConfigurationFile();
         
         return $this;
     }
@@ -199,6 +204,33 @@ class Application
         }
         
         return true;
+    }
+    
+    public function configurationFileName()
+    {
+        return $this->name . ".json";
+    }
+    
+    public function loadConfigurationFile()
+    {
+        $this->configFile = new JsonConfigurationFile($this->configurationFileName());
+        
+        if (file_exists($this->configurationFileName())) {
+            $this->configFile->load();
+        }
+        
+        return $this;
+    }
+    
+    public function config($name = false)
+    {
+        if ($name == false)
+            return $this->configFile;
+        
+        if (property_exists($this->configFile->getData(), $name))
+            return $this->configFile->getData()->$name;
+        
+        return false;
     }
 
     
