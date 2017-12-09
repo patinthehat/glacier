@@ -111,7 +111,10 @@ class Application
         if (is_object($defaultCommand)) {
             $this->registerCommand($defaultCommand);
             $this->defaultCommandIndex = count($this->commands)-1;
-        }
+            
+            if (method_exists($defaultCommand, 'initialize'))
+                $defaultCommand->initialize();
+        }    
         
         if ($automaticallyRun)
             $this->run();
@@ -166,6 +169,9 @@ class Application
     
     public function __get($name)
     {
+        if ($name == 'events')
+            $name = 'dispatcher';
+        
         return $this->$name;
     }
     
