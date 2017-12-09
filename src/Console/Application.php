@@ -6,6 +6,7 @@ use Glacier\Console\Arguments;
 use Glacier\Console\Output;
 use Glacier\Console\ApplicationSettings;
 use Glacier\Filesystem\JsonConfigurationFile;
+use Glacier\Events\Dispatcher;
 
 class Application
 {
@@ -19,9 +20,11 @@ class Application
     protected $commands;
     protected $defaultCommandIndex = -1;
     protected $configFile;
+    protected $dispatcher;
 
     protected function init(array $args, $parseArguments)
     {
+        $this->dispatcher = new Dispatcher;
         $this->configFile = false;
         $this->commands = [];
         $this->output = new Output;
@@ -34,6 +37,11 @@ class Application
         $this->loadConfigurationFile();
         
         return $this;
+    }
+    
+    public function event($event)
+    {
+        return $this->dispatcher->fire($event);
     }
     
     public function registerCommand(Command $cmd)
@@ -97,13 +105,16 @@ class Application
         return $this;
     }
 
-    public function __construct(array $args, $parseArguments = true, Command $defaultCommand = null)
+    public function __construct(array $args, $parseArguments = true, Command $defaultCommand = null, $automaticallyRun = false)
     {
         $this->init($args, $parseArguments);
         if (is_object($defaultCommand)) {
             $this->registerCommand($defaultCommand);
             $this->defaultCommandIndex = count($this->commands)-1;
         }
+        
+        if ($automaticallyRun)
+            $this->run();
     }
 
     public function arguments()
