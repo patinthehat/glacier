@@ -13,6 +13,12 @@ class Application
     public $commandSupport = true;
     public $configFileSupport = true;
     
+    /**
+     * 
+     * @var Application
+     */
+    protected static $instance;
+    
     protected $arguments;
     protected $settings;
     protected $name;
@@ -21,6 +27,11 @@ class Application
     protected $defaultCommandIndex = -1;
     protected $configFile;
     protected $dispatcher;
+    
+    public static function instance()
+    {
+        return static::$instance;
+    }
 
     protected function init(array $args, $parseArguments)
     {
@@ -47,7 +58,6 @@ class Application
     public function registerCommand(Command $cmd)
     {
         if (!$this->hasCommand($cmd->name)) {
-            $cmd->app = $this;
             $this->commands[] = $cmd;
             if ($cmd->name == 'default')
                 $this->defaultCommandIndex = count($this->commands)-1;
@@ -107,6 +117,9 @@ class Application
 
     public function __construct(array $args, $parseArguments = true, Command $defaultCommand = null, $automaticallyRun = false)
     {
+        if (!isset(static::$instance))
+            static::$instance = $this;
+        
         $this->init($args, $parseArguments);
         if (is_object($defaultCommand)) {
             $this->registerCommand($defaultCommand);

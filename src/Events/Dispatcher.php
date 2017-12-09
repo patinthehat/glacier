@@ -23,7 +23,31 @@ class Dispatcher
                 $this->listeners[$event][] = $this->makeListener($listener);
             }
         }
+        return $this;
+    }
+    
+    public function registerListener($eventListener)
+    {
+        $events = [];
         
+        if (is_string($eventListener::$events))
+            $events[] = $eventListener::$events;
+        
+        if (is_array($eventListener::$events))
+            $events = $eventListener::$events;
+        
+        foreach($events as $event)
+            $this->listen($event, $eventListener);
+        
+        return $this;
+    }
+    
+    public function registerListeners(array $listeners)
+    {
+        foreach($listeners as $listener) 
+            $this->registerListener($listener);
+        
+        return $this;
     }
     
     protected function setupWildcardListen($event, $listener)

@@ -6,7 +6,7 @@ use Glacier\Console\CommandInterface;
 
 abstract class Command implements CommandInterface
 {
-    public $app;
+    //public $app;
     public $name = '';
     
     public function __construct()
