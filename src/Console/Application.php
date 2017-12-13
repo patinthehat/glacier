@@ -2,12 +2,12 @@
 
 namespace Glacier\Console;
 
+use Glacier\Interfaces\Console\CommandInterface;
+use Glacier\Console\ApplicationSettings;
 use Glacier\Console\Arguments;
 use Glacier\Console\Output;
-use Glacier\Console\ApplicationSettings;
 use Glacier\Filesystem\JsonConfigurationFile;
 use Glacier\Events\Dispatcher;
-use Glacier\Interfaces\Console\CommandInterface;
 
 class Application
 {
@@ -29,6 +29,7 @@ class Application
     protected $configFile;
     protected $dispatcher;
     protected $applicationBasePath;
+    protected $autoregisterListeners;
 
     public static function instance()
     {
@@ -114,6 +115,9 @@ class Application
 
         $this->settings = new ApplicationSettings($settings);
 
+        if ($this->autoregisterListeners)
+            $this->autoRegisterListeners();
+
         return $this;
     }
 
@@ -122,7 +126,10 @@ class Application
         if (!isset(static::$instance))
             static::$instance = $this;
 
+        $this->autoregisterListeners = $autoregisterListeners;
+
         $this->init($args, $parseArguments, $applicationBasePath);
+
 
         if (is_object($defaultCommand) && $defaultCommand instanceof CommandInterface) {
             $defaultCommand->default = true;
@@ -141,9 +148,6 @@ class Application
         $this->initializeDefaultCommands();
 
         $this->commandSupport = $multipleCommandSupport;
-
-        if ($autoregisterListeners)
-            $this->auto_register_listeners();
 
         if ($automaticallyRun)
             $this->run();
@@ -220,14 +224,18 @@ class Application
 
     public function run()
     {
+        $this->initSettings();
+
         $this->initializeDefaultCommands();
+
+        $this->autoRegisterCommands();
 
         //multiple command support disabled
         if (!$this->commandSupport)
             return $this->executeDefaultCommands();
 
         //multiple command support enabled
-        if (count($this->arguments()->parameters)==0)
+        if ($this->commandSupport && count($this->arguments()->parameters)==0)
             return $this->executeDefaultCommands();
 
         $commandName = $this->arguments()->parameters[0];
@@ -306,15 +314,37 @@ class Application
     }
 
 
-    function auto_register_listeners()
+    public function autoRegisterListeners()
     {
         $classes = get_declared_classes();
 
         foreach($classes as $class) {
+            //echo $class.PHP_EOL;
             $parentClass = get_parent_class($class);
             if ($parentClass == 'Glacier\Events\EventListener' ||
-                $parentClass == 'Glacier\Events\MultipleEventListener')
-                $this->events->registerListener($class);
+                $parentClass == 'Glacier\Events\MultipleEventListener') {
+                    if (isset($class::$autoRegister) && $class::$autoRegister == true)
+                        $this->dispatcher->registerListener($class);
+            }
+        }
+
+        return $this;
+    }
+
+    public function autoRegisterCommands()
+    {
+        $classes = get_declared_classes();
+
+        foreach($classes as $class) {
+            if ($class == 'Glacier\Console\DefaultCommand')
+                continue;
+
+            //echo $class.PHP_EOL;
+            $parentClass = get_parent_class($class);
+            if ($parentClass == 'Glacier\Console\Command' && $class != 'Glacier\Console\DefaultCommand') {
+                if (isset($class::$autoRegister) && $class::$autoRegister == true)
+                    $this->registerCommand(new $class);
+            }
         }
 
         return $this;

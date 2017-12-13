@@ -5,6 +5,7 @@ namespace Glacier\Events;
 abstract class EventListener
 {
     public static $events;
+    public static $autoRegister = true;
 
     public function __construct()
     {

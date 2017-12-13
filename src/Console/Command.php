@@ -7,6 +7,8 @@ use Glacier\Interfaces\Console\CommandInterface;
 abstract class Command implements CommandInterface
 {
     //public $app;
+    public static $autoRegister = true;
+    
     public $name = '';
     public $default = false;
     

@@ -11,7 +11,6 @@ if (!function_exists('app')) {
 
 }
 
-
 if (!function_exists('event')) {
     function event($event, $payload = null)
     {
@@ -26,7 +25,6 @@ if (!function_exists('setting')) {
     }
 }
 
-
 if (!function_exists('command_name')) {
     function command_name($className)
     {
@@ -38,7 +36,6 @@ if (!function_exists('command_name')) {
         return strtolower($name);
     }
 }
-
 
 if (!function_exists('generate_command_name')) {
 

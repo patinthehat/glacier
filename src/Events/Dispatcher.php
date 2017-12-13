@@ -48,8 +48,11 @@ class Dispatcher
         if (is_array($eventListener::$events))
             $events = $eventListener::$events;
 
-        foreach($events as $event)
+        foreach($events as $event) {
+        //    echo '[debug] $eventListener = '.($eventListener).PHP_EOL;
+
             $this->listen($event, $eventListener);
+        }
 
         return $this;
     }
