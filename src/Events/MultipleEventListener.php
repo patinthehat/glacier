@@ -12,7 +12,7 @@ class MultipleEventListener extends EventListener
             throw new \Exception(__CLASS__.' must define static property $events as string[].');
     }
  
-    public function handle($event)
+    public function handle($event, $payload = null)
     {
         $methodName = preg_replace('/[-.]/', '_', $event->name);
         $methodName = str_replace('*', 'all_events', $methodName);
@@ -25,7 +25,7 @@ class MultipleEventListener extends EventListener
                 throw new \Exception('Unhandled event: '.$methodName);
             }
         
-        $this->$methodName($event);
+        $this->$methodName($event, $payload);
         return true;
     }
 }

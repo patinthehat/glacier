@@ -13,9 +13,9 @@ if (!function_exists('app')) {
 
 
 if (!function_exists('event')) {
-    function event($event)
+    function event($event, $payload = null)
     {
-        return app()->event($event);
+        return app()->event($event, $payload);
     }
 }
 
@@ -53,5 +53,12 @@ if (!function_exists('generate_command_name')) {
         $result = preg_replace('/\-{2,}/', '-', $result);
 
         return $result;
+    }
+}
+
+if (!function_exists('base_path')) {
+    function base_path()
+    {
+        return app()->getBasePath();
     }
 }

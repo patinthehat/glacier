@@ -28,13 +28,14 @@ class Application
     protected $defaultCommandIndex = -1;
     protected $configFile;
     protected $dispatcher;
+    protected $applicationBasePath;
 
     public static function instance()
     {
         return static::$instance;
     }
 
-    protected function init(array $args, $parseArguments)
+    protected function init(array $args, $parseArguments, $applicationBasePath)
     {
         $this->dispatcher = new Dispatcher;
         $this->configFile = false;
@@ -48,12 +49,19 @@ class Application
         $this->initSettings();
         $this->loadConfigurationFile();
 
+        $this->applicationBasePath = $applicationBasePath;
+
         return $this;
     }
 
-    public function event($event)
+    public function getBasePath()
     {
-        return $this->dispatcher->fire($event);
+        return $this->applicationBasePath;
+    }
+
+    public function event($event, $payload = null)
+    {
+        return $this->dispatcher->fire($event, $payload);
     }
 
     public function registerCommand(Command $cmd)
@@ -109,12 +117,12 @@ class Application
         return $this;
     }
 
-    public function __construct(array $args, $parseArguments = true, $defaultCommand = null, $automaticallyRun = false, $multipleCommandSupport = true)
+    public function __construct(array $args, $applicationBasePath, $autoregisterListeners = false, $parseArguments = true, $defaultCommand = null, $automaticallyRun = false, $multipleCommandSupport = true)
     {
         if (!isset(static::$instance))
             static::$instance = $this;
 
-        $this->init($args, $parseArguments);
+        $this->init($args, $parseArguments, $applicationBasePath);
 
         if (is_object($defaultCommand) && $defaultCommand instanceof CommandInterface) {
             $defaultCommand->default = true;
@@ -133,6 +141,9 @@ class Application
         $this->initializeDefaultCommands();
 
         $this->commandSupport = $multipleCommandSupport;
+
+        if ($autoregisterListeners)
+            $this->auto_register_listeners();
 
         if ($automaticallyRun)
             $this->run();
@@ -292,6 +303,21 @@ class Application
             return $this->configFile->getData()->$name;
 
         return false;
+    }
+
+
+    function auto_register_listeners()
+    {
+        $classes = get_declared_classes();
+
+        foreach($classes as $class) {
+            $parentClass = get_parent_class($class);
+            if ($parentClass == 'Glacier\Events\EventListener' ||
+                $parentClass == 'Glacier\Events\MultipleEventListener')
+                $this->events->registerListener($class);
+        }
+
+        return $this;
     }
 
 
