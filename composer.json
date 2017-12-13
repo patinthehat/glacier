@@ -1,6 +1,5 @@
 {
     "name": "patinthehat/glacier",
-    "version": "0.1",
     "description": "Lightweight console application framework for PHP",
     "type": "library",
     "license": "MIT",

@@ -1,0 +1,9 @@
+#!/bin/sh
+
+phpunit --testdox-text="test-report.txt" tests
+sleep 1
+echo ""
+echo "---"
+cat test-report.txt
+echo "---"
+rm test-report.txt
