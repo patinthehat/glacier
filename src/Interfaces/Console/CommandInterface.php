@@ -1,6 +1,6 @@
 <?php
 
-namespace Glacier\Console;
+namespace Glacier\Interfaces\Console;
 
 interface CommandInterface
 {
