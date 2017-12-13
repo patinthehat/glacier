@@ -5,7 +5,7 @@ A lightweight framework for quickly putting together PHP CLI scripts and applica
 
 ---
 
-####Install with composer
+#### Install with composer
 	
 ```composer require patinthehat/glacier```
 
@@ -137,7 +137,7 @@ If you simply wish to be able to handle flags with no values,  you do not need t
 
 ---
 
-####A Basic Application
+#### A Basic Application
 
 ```php
 require(__DIR__.'/vendor/autoload.php');
